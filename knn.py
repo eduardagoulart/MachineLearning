@@ -7,12 +7,19 @@ import numpy as np
 
 
 class Knn():
+
+    # TODO: copiar os dados para um arquivo
     def __init__(self):
         self.iris = load_iris()
 
+    # TODO: criar uma nova funcao para gerar imagem com os valores do KNN
     def knn_iris(self):
+
+        # Pega os valores do database
         X_train, X_test, y_train, y_test = train_test_split(self.iris['data'], self.iris['target'], random_state=0)
         fig, ax = plt.subplots(3, 3, figsize=(15, 15))
+
+        # TODO: gerar a imagem a partir desses dados
         for i in range(3):
             for j in range(3):
                 ax[i, j].scatter(X_train[:, j], X_train[:, i + 1], c=y_train, s=60)
