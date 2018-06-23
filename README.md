@@ -5,7 +5,8 @@ pip install -U scikit-learn
 python knn_sklearn.py 
 ```
 
-##Algoritmo sem lib
+## Algoritmo sem lib
 ```
 python knn.py
 ```
+

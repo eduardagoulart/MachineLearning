@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import csv
-import random
+from random import random
 import math
 import operator
 import matplotlib
 import matplotlib.pyplot as plt
 
 
-class Knn():
+# TODO: implementar a função de gerar imagem
+class Knn:
 
     def escolhe_data(self):
         """
@@ -28,22 +29,26 @@ class Knn():
         :param split: porcentagem  dadosde do arquivo que serão utilizadas
         :param conjunto_treinados: conjunto de dados treinados
         :param conjunto_teste: conjunto de
-        :return:
         """
         filename = self.escolhe_data()
         with open(filename, 'rt') as arquivo_csv:
             lines = csv.reader(arquivo_csv)
-            conjutno_dados = list(lines)
-            for x in range(len(conjutno_dados) - 1):
+            conjunto_dados = list(lines)
+            for x in range(len(conjunto_dados) - 1):
                 for y in range(4):
-                    conjutno_dados[x][y] = float(conjutno_dados[x][y])
-                if random.random() < split:
-                    conjunto_treinados.append(conjutno_dados[x])
+                    conjunto_dados[x][y] = float(conjunto_dados[x][y])
+                """
+                Gera um valor randômico, se for menor que a porcentagem de elementos utilizados, será adicionado em um 
+                conjunto de dados que serão treinados. 
+                Caso o valor gerado seja maior que o split, será adicionado no cojunto de dados teste
+                """
+                if random() < split:
+                    conjunto_treinados.append(conjunto_dados[x])
                 else:
-                    conjunto_teste.append(conjutno_dados[x])
+                    conjunto_teste.append(conjunto_dados[x])
 
     @staticmethod
-    def distancia_euclidiana(self, valor1, valor2, tamanho):
+    def distancia_euclidiana(valor1, valor2, tamanho):
         """
         Essa função calcula a distância euclidiana entre dois conjuntos de dados
         """
@@ -51,7 +56,6 @@ class Knn():
 
         return math.sqrt(sum(dist))
 
-    # Calculate distance from training data for every test point and store it
     def separa_vizinhos(self, conjunto_treinados, instancia_teste, k):
         distancias = []
         tamanho = len(instancia_teste) - 1
@@ -64,46 +68,50 @@ class Knn():
             vizinhos.append(distancias[x][0])
         return vizinhos
 
-    def responsavel(self, vizinhos):
-        classVotes = {}
+    @staticmethod
+    def responsavel(vizinhos):
+        votos = {}
         for x in range(len(vizinhos)):
             response = vizinhos[x][-1]
-            if response in classVotes:
-                classVotes[response] += 1
+            if response in votos:
+                votos[response] += 1
             else:
-                classVotes[response] = 1
-        sortedVotes = sorted(classVotes.items(), key=operator.itemgetter(1), reverse=True)
-        return sortedVotes[0][0]
+                votos[response] = 1
+        ordena_votos = sorted(votos.items(), key=operator.itemgetter(1), reverse=True)
+        return ordena_votos[0][0]
 
-    def acertos(self, conjunto_teste, predictions):
-        correct = 0
+    @staticmethod
+    def calcula_acerto(conjunto_teste, nome_dado):
+        correto = 0
         for x in range(len(conjunto_teste)):
-            if conjunto_teste[x][-1] == predictions[x]:
-                correct += 1
-        return (correct / float(len(conjunto_teste))) * 100.0
+            if conjunto_teste[x][-1] == nome_dado[x]:
+                correto += 1
+        return (correto / float(len(conjunto_teste))) * 100.0
 
-    def main(self):
+    def run(self):
+        k = int(input("Digite um valor para K: "))
+
         conjunto_treinados = []
         conjunto_teste = []
         self.carrega_arquivo(0.67, conjunto_treinados, conjunto_teste)
+
         print('Conjunto treinado: ' + str(len(conjunto_treinados)))
         print('Conjutno de teste: ' + str(len(conjunto_teste)))
 
-        predictions = []
-        k = int(input("Digite um valor para K: "))
+        nome_dado = []
+
         for x in range(len(conjunto_teste)):
             vizinhos = self.separa_vizinhos(conjunto_treinados, conjunto_teste[x], k)
             result = self.responsavel(vizinhos)
-            predictions.append(result)
-            print('Valor obtido: {}, valor real: {}'.format(str(result), str(conjunto_teste[x][-1])))
-        accuracy = self.acertos(conjunto_teste, predictions)
-        print('Taxa de acerto: {0:.3f}%'.format(accuracy))
+            nome_dado.append(result)
+            if result == conjunto_teste[x][-1]:
+                print('Valor obtido: {}, valor real: {} -> ACERTOU'.format(str(result), str(conjunto_teste[x][-1])))
+            else:
+                print('Valor obtido: {}, valor real: {} -> ERROU'.format(str(result), str(conjunto_teste[x][-1])))
+        acerto = self.calcula_acerto(conjunto_teste, nome_dado)
+        print('Taxa de acerto: {0:.3f}%'.format(acerto))
 
 
 if __name__ == '__main__':
-    # iris.data
-
-    # file = input("Digite o nome do arquivo: ")
-    # obj = Knn(file)
     obj = Knn()
-    obj.main()
+    obj.run()
