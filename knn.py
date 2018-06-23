@@ -1,49 +1,108 @@
-from sklearn.datasets import load_iris # carrega a base de dados
-from sklearn.datasets import load_boston
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import csv
+import random
+import math
+import operator
+import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 class Knn():
 
-    # TODO: copiar os dados para um arquivo
-    def __init__(self):
-        self.iris = load_iris()
+    def escolhe_data(self):
+        """
+        Menu para escolher qual conjunto de dados será utilizado pelo algoritmo
+        """
+        print("Escolha um conjunto de dados ")
+        print("1. Iris")
+        file = input()
+        if file == 'iris' or file == "Iris" or file == '1':
+            return 'iris.data'
+        self.escolhe_data()
 
-    # TODO: criar uma nova funcao para gerar imagem com os valores do KNN
-    def knn_iris(self):
+    def carrega_arquivo(self, split, conjunto_treinados, conjunto_teste):
+        """
+        Lê os dados do arquivo e separa de forma adequada, entre um conjunto de testes e um conjunto que será treinado
+        :param split: porcentagem  dadosde do arquivo que serão utilizadas
+        :param conjunto_treinados: conjunto de dados treinados
+        :param conjunto_teste: conjunto de
+        :return:
+        """
+        filename = self.escolhe_data()
+        with open(filename, 'rt') as arquivo_csv:
+            lines = csv.reader(arquivo_csv)
+            conjutno_dados = list(lines)
+            for x in range(len(conjutno_dados) - 1):
+                for y in range(4):
+                    conjutno_dados[x][y] = float(conjutno_dados[x][y])
+                if random.random() < split:
+                    conjunto_treinados.append(conjutno_dados[x])
+                else:
+                    conjunto_teste.append(conjutno_dados[x])
 
-        # Pega os valores do database
-        X_train, X_test, y_train, y_test = train_test_split(self.iris['data'], self.iris['target'], random_state=0)
-        fig, ax = plt.subplots(3, 3, figsize=(15, 15))
+    def distancia_euclidiana(self, valor1, valor2, tamanho):
+        """
+        Essa função calcula a distância euclidiana entre dois conjuntos de dados
+        """
+        dist = [pow((valor1[x] - valor2[x]), 2) for x in range(tamanho)]
 
-        # TODO: gerar a imagem a partir desses dados
-        for i in range(3):
-            for j in range(3):
-                ax[i, j].scatter(X_train[:, j], X_train[:, i + 1], c=y_train, s=60)
-                ax[i, j].set_xticks(())
-                ax[i, j].set_yticks(())
+        return math.sqrt(sum(dist))
 
-                if i == 2:
-                    ax[i, j].set_xlabel(self.iris['feature_names'][j])
-                if j == 0:
-                    ax[i, j].set_ylabel(self.iris['feature_names'][i + 1])
-                if j > i:
-                    ax[i, j].set_visible(False)
+    # Calculate distance from training data for every test point and store it
+    def separa_vizinhos(self, conjunto_treinados, instancia_teste, k):
+        distancias = []
+        tamanho = len(instancia_teste) - 1
+        for x in range(len(conjunto_treinados)):
+            dist = self.distancia_euclidiana(instancia_teste, conjunto_treinados[x], tamanho)
+            distancias.append((conjunto_treinados[x], dist))
+        distancias.sort(key=operator.itemgetter(1))
+        vizinhos = []
+        for x in range(k):
+            vizinhos.append(distancias[x][0])
+        return vizinhos
 
-        knn = KNeighborsClassifier(n_neighbors=1) # escolha de quantos vizinhos utilizados
-        print(knn.fit(X_train, y_train))
-        X_new = np.array([[5, 2.9, 1, 0.2]])
-        print(X_new.shape) # mostra quantas features diferentes possui
-        prediction = knn.predict(X_new) # pega o provedor do dado
-        print(prediction)
-        print(self.iris['target_names'][prediction]) # exibe o nome do provedor
-        # print(knn.score(X_test, y_test))
-        return knn.score(X_test, y_test) # taxa de acerto
+    def getResponse(self, vizinhos):
+        classVotes = {}
+        for x in range(len(vizinhos)):
+            response = vizinhos[x][-1]
+            if response in classVotes:
+                classVotes[response] += 1
+            else:
+                classVotes[response] = 1
+        sortedVotes = sorted(classVotes.items(), key=operator.itemgetter(1), reverse=True)
+        return sortedVotes[0][0]
+
+    def getAccuracy(self, conjunto_teste, predictions):
+        correct = 0
+        for x in range(len(conjunto_teste)):
+            if conjunto_teste[x][-1] == predictions[x]:
+                correct += 1
+        return (correct / float(len(conjunto_teste))) * 100.0
+
+    def main(self):
+        conjunto_treinados = []
+        conjunto_teste = []
+        self.carrega_arquivo(0.67, conjunto_treinados, conjunto_teste)
+        print('Conjunto treinado: ' + str(len(conjunto_treinados)))
+        print('Conjutno de teste: ' + str(len(conjunto_teste)))
+
+        predictions = []
+        k = int(input("Digite um valor para K: "))
+        for x in range(len(conjunto_teste)):
+            vizinhos = self.separa_vizinhos(conjunto_treinados, conjunto_teste[x], k)
+            result = self.getResponse(vizinhos)
+            predictions.append(result)
+            print('Valor obtido: {}, valor real: {}'.format(str(result), str(conjunto_teste[x][-1])))
+        accuracy = self.getAccuracy(conjunto_teste, predictions)
+        print('Taxa de acerto: {0:.3f}%'.format(accuracy))
 
 
 if __name__ == '__main__':
+    # iris.data
+
+    # file = input("Digite o nome do arquivo: ")
+    # obj = Knn(file)
     obj = Knn()
-    print(obj.knn_iris())
+    obj.main()
