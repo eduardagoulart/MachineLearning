@@ -42,6 +42,7 @@ class Knn():
                 else:
                     conjunto_teste.append(conjutno_dados[x])
 
+    @staticmethod
     def distancia_euclidiana(self, valor1, valor2, tamanho):
         """
         Essa função calcula a distância euclidiana entre dois conjuntos de dados
@@ -63,7 +64,7 @@ class Knn():
             vizinhos.append(distancias[x][0])
         return vizinhos
 
-    def getResponse(self, vizinhos):
+    def responsavel(self, vizinhos):
         classVotes = {}
         for x in range(len(vizinhos)):
             response = vizinhos[x][-1]
@@ -74,7 +75,7 @@ class Knn():
         sortedVotes = sorted(classVotes.items(), key=operator.itemgetter(1), reverse=True)
         return sortedVotes[0][0]
 
-    def getAccuracy(self, conjunto_teste, predictions):
+    def acertos(self, conjunto_teste, predictions):
         correct = 0
         for x in range(len(conjunto_teste)):
             if conjunto_teste[x][-1] == predictions[x]:
@@ -92,10 +93,10 @@ class Knn():
         k = int(input("Digite um valor para K: "))
         for x in range(len(conjunto_teste)):
             vizinhos = self.separa_vizinhos(conjunto_treinados, conjunto_teste[x], k)
-            result = self.getResponse(vizinhos)
+            result = self.responsavel(vizinhos)
             predictions.append(result)
             print('Valor obtido: {}, valor real: {}'.format(str(result), str(conjunto_teste[x][-1])))
-        accuracy = self.getAccuracy(conjunto_teste, predictions)
+        accuracy = self.acertos(conjunto_teste, predictions)
         print('Taxa de acerto: {0:.3f}%'.format(accuracy))
 
 
