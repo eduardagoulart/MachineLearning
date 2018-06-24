@@ -84,8 +84,16 @@ class Knn:
 
     @staticmethod
     def votos_majoritarios(vizinhos):
+        """
+        Dado a lista de vizinhos, determina a ocorrência de cada um e ordena de forma decrescente. Desta maneira,
+        os vizinhos com maior ocorrência, irão ficar no início da lista.
+        """
         votos = {}
         for x in range(len(vizinhos)):
+            """
+            Pega a última posição da lista "vizinhos", que é um nome, desta forma o dicionário "votos" terá como 
+            chave, o nome do elemento, e valor a sua quantidade de ocorrência.
+            """
             if vizinhos[x][-1] not in votos:
                 votos[vizinhos[x][-1]] = 1
             else:
@@ -93,10 +101,14 @@ class Knn:
         return (sorted(votos.items(), reverse=True, key=itemgetter(1)))[0][0]
 
     @staticmethod
-    def calcula_acerto(conjunto_teste, nome_dado):
+    def calcula_acerto(conjunto_teste, dado):
+        """
+        Esta função retorna a porcentagem de acertos do algoritmo, dado o conjunto de destes, e o nome do dado que foi
+        treinado, caso sejam iguais, houve um acerto
+        """
         correto = 0
         for i in range(len(conjunto_teste)):
-            if nome_dado[i] == conjunto_teste[i][-1]:
+            if dado[i] == conjunto_teste[i][-1]:
                 correto += 1
         return (correto / float(len(conjunto_teste))) * 100.0
 
@@ -120,17 +132,17 @@ class Knn:
         print('Conjunto treinado: {}'.format(str(len(conjunto_treinados))))
         print('Conjutno de teste: {}'.format(str(len(conjunto_teste))))
 
-        nome_dado = []
+        dado = []
 
         for i in range(len(conjunto_teste)):
             vizinhos = self.separa_vizinhos(conjunto_treinados, conjunto_teste[i], k)
             result = self.votos_majoritarios(vizinhos)
-            nome_dado.append(result)
+            dado.append(result)
             if result == conjunto_teste[i][-1]:
                 print('Valor obtido: {} || valor real: {} -> ACERTOU'.format(str(result), str(conjunto_teste[i][-1])))
             else:
                 print('Valor obtido: {} || valor real: {} -> ERROU'.format(str(result), str(conjunto_teste[i][-1])))
-        acerto = self.calcula_acerto(conjunto_teste, nome_dado)
+        acerto = self.calcula_acerto(conjunto_teste, dado)
         print('Taxa de acerto: {0:.3f}%'.format(acerto))
 
 
