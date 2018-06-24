@@ -53,7 +53,6 @@ class Knn:
         Essa função calcula a distância euclidiana entre dois conjuntos de dados
         """
         dist = [pow((valor1[x] - valor2[x]), 2) for x in range(tamanho)]
-
         return math.sqrt(sum(dist))
 
     def separa_vizinhos(self, conjunto_treinados, instancia_teste, k):
@@ -89,14 +88,17 @@ class Knn:
         return (correto / float(len(conjunto_teste))) * 100.0
 
     def run(self):
-        k = int(input("Digite um valor para K: "))
+        while True:
+            k = int(input("Digite um valor para K: "))
+            if k % 2 != 0:
+                break;
 
         conjunto_treinados = []
         conjunto_teste = []
         self.carrega_arquivo(0.67, conjunto_treinados, conjunto_teste)
 
-        print('Conjunto treinado: ' + str(len(conjunto_treinados)))
-        print('Conjutno de teste: ' + str(len(conjunto_teste)))
+        print('Conjunto treinado: {}'.format(str(len(conjunto_treinados))))
+        print('Conjutno de teste: {}'.format(str(len(conjunto_teste))))
 
         nome_dado = []
 
