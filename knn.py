@@ -20,11 +20,25 @@ class Knn:
         """
         Menu para escolher qual conjunto de dados será utilizado pelo algoritmo
         """
-        print("Escolha um conjunto de dados ")
-        print("1. Iris")
+        print("==================================================")
+        print("||Escolha um conjunto de dados                  ||")
+        print("==================================================")
+        print("||1. Iris                                       ||")
+        print("==================================================")
+        print("||2. Tic-Tac-Toe                                ||")
+        print("==================================================")
+        print("||4. Wine                                       ||")
+        print("==================================================")
+
         file = input()
         if file == 'iris' or file == "Iris" or file == '1':
             return 'iris.data'
+
+        if file == 'tic-tac-toe' or file == "Tic-tac-toe" or file == '2' or file == 'Tic-Tac-Toe':
+            return 'tic-tac-toe.data'
+
+        if file == 'wine' or file == "Wine" or file == '4':
+            return 'wine.data'
 
         self.escolhe_data()
 
@@ -39,7 +53,9 @@ class Knn:
         with open(filename, 'rt') as arquivo_csv:
             conjunto_dados = list(reader(arquivo_csv))
             for x in range(len(conjunto_dados) - 1):
-                for y in range(4):
+                tam = len(conjunto_dados[x])
+                # print(conjunto_dados[x].pop([tam-1]))
+                for y in range(tam-1):
                     conjunto_dados[x][y] = float(conjunto_dados[x][y])
                 """
                 Gera um valor randômico que define a quantidade de dados utilizados como treinamento e como teste,
@@ -77,10 +93,9 @@ class Knn:
                       for i in range(len(conjunto_treinados))]
         # ordena o vetor
         distancias.sort(key=itemgetter(1))
-        # pega os primeiros k vizinhos do conjunto de treinamento
-        vizinhos = [distancias[i][0] for i in range(k)]
 
-        return vizinhos
+        # pega os primeiros k vizinhos do conjunto de treinamento
+        return [distancias[i][0] for i in range(k)]
 
     @staticmethod
     def votos_majoritarios(vizinhos):
